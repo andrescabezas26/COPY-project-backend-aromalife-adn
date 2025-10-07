@@ -1,0 +1,2149 @@
+{
+	"info": {
+		"_postman_id": "22798c8e-9c1c-41b4-9b55-9a995dfe3921",
+		"name": "Project API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35088863",
+		"_collection_link": "https://adn333.postman.co/workspace/Aromalife---Pruebas-de-integrac~b615c2c1-b919-41c1-a81d-72176e29e87b/collection/35088863-22798c8e-9c1c-41b4-9b55-9a995dfe3921?action=share&source=collection_link&creator=35088863"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Save user ID in a variable\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"userId\", jsonData.id);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Test User\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register-client",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register-client"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extracting the token from the response body",
+									"const responseBody = pm.response.json();",
+									"",
+									"// Storing the token in an environment variable",
+									"pm.collectionVariables.set('token', responseBody.token);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "aromalife-backend-production.up.railway.app/auth/login",
+							"host": [
+								"aromalife-backend-production",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Hello",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Places",
+			"item": [
+				{
+					"name": "Create Place",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"placeId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Place\",\n  \"icon\": \"🥸\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/places",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"places"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Places",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/places",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"places"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Place By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/places/{{placeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"places",
+								"{{placeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Place (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Place\",\n  \"icon\": \"🧑🏻‍🦯\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/places/{{placeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"places",
+								"{{placeId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MainOptions",
+			"item": [
+				{
+					"name": "Create Main Option",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"mainOptionId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Option\",\n  \"description\": \"Test description\",\n  \"emoji\": \"🧑🏻‍🦯\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/main-options",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"main-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Main Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/main-options",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"main-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Main Option By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/main-options/{{mainOptionId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"main-options",
+								"{{mainOptionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Main Option (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Option\",\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/main-options/{{mainOptionId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"main-options",
+								"{{mainOptionId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "IntendedImpacts",
+			"item": [
+				{
+					"name": "Create Intended Impact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"intendedImpactId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Impact\",\n  \"description\": \"Test impact description\",\n  \"icon\": \"🧑🏻‍🦯\",\n  \"mainOptionId\": \"{{mainOptionId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/intended-impacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"intended-impacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Intended Impacts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/intended-impacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"intended-impacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Intended Impact By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/intended-impacts/{{intendedImpactId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"intended-impacts",
+								"{{intendedImpactId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Intended Impact (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Impact\",\n  \"description\": \"Updated impact description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/intended-impacts/{{intendedImpactId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"intended-impacts",
+								"{{intendedImpactId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Containers",
+			"item": [
+				{
+					"name": "Create Container",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"containerId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Container\",\n  \"description\": \"Test container description\",\n  \"basePrice\": 10,\n  \"dimensions\": \"10x10x10\",\n  \"imageUrl\": \"https://example.com/images/vino-colombiano.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/containers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"containers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Containers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/containers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"containers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Container By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/containers/{{containerId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"containers",
+								"{{containerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Container (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Container\",\n  \"description\": \"Updated container description\",\n  \"basePrice\": 15,\n  \"dimensions\": \"15x15x15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/containers/{{containerId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"containers",
+								"{{containerId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Aromas",
+			"item": [
+				{
+					"name": "Create Aroma",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"aromaId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Aroma\",\n  \"description\": \"A calming aroma\",\n  \"olfativePyramid\": {\n    \"salida\": \"floral\",\n    \"corazon\": \"herbal\",\n    \"fondo\": \"amaderado\"\n  },\n  \"imageUrl\": \"https://example.com/aroma.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/aromas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aromas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Aromas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/aromas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aromas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Aroma By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/aromas/{{aromaId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aromas",
+								"{{aromaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Aroma (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Aroma\",\n  \"description\": \"An updated calming aroma\",\n  \"olfativePyramid\": {\n    \"salida\": \"floral updated\",\n    \"corazon\": \"herbal updated\",\n    \"fondo\": \"amaderado updated\"\n  },\n  \"imageUrl\": \"https://example.com/aroma-updated.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/aromas/{{aromaId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aromas",
+								"{{aromaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Aroma to Intended",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/aromas/{{aromaId}}/assign-intended-impact/{{intendedImpactId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aromas",
+								"{{aromaId}}",
+								"assign-intended-impact",
+								"{{intendedImpactId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Gifts",
+			"item": [
+				{
+					"name": "Create Gift",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"giftId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Gift\",\n  \"description\": \"Test gift description\",\n  \"price\": 15.5,\n  \"imageUrl\": \"https://example.com/images/vino-colombiano.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/gifts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gifts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Gifts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/gifts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gifts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Gift By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/gifts/{{giftId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gifts",
+								"{{giftId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Gift (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Gift\",\n  \"description\": \"Updated gift description\",\n  \"price\": 20.0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/gifts/{{giftId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gifts",
+								"{{giftId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Candles",
+			"item": [
+				{
+					"name": "Create Candle",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"candleId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Candle\",\n  \"description\": \"A relaxing candle\",\n  \"price\": 20.5,\n  \"containerId\": \"{{containerId}}\",\n  \"aromaId\": \"{{aromaId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/candles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"candles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Candles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/candles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"candles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Candle By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/candles/{{candleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"candles",
+								"{{candleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Candle",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Candle\",\n  \"description\": \"An updated relaxing candle\",\n  \"price\": 25.0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/candles/{{candleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"candles",
+								"{{candleId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Create Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"cartId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"checkedOut\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cart By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cart/{{cartId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"{{cartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cart/{{cartId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"{{cartId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart-Items",
+			"item": [
+				{
+					"name": "Create Cart Item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"cartItemId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cartId\": \"{{cartId}}\",\n  \"candleId\": \"{{candleId}}\",\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cart-items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart-items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Cart Items",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cart-items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart-items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cart Item By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cart-items/{{cartItemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart-items",
+								"{{cartItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart Item (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cartId\": \"{{cartId}}\",\n  \"candleId\": \"{{candleId}}\",\n  \"quantity\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cart-items/{{cartItemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart-items",
+								"{{cartItemId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"orderId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"totalAmount\": 100,\n  \"shippingAddress\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"Test City\",\n    \"state\": \"Test State\",\n    \"country\": \"Test Country\",\n    \"zipCode\": \"12345\"\n  },\n  \"status\": \"PENDING\",\n  \"userId\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/orders/{{orderId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"totalAmount\": 150,\n  \"shippingAddress\": {\n    \"street\": \"456 Updated St\",\n    \"city\": \"Updated City\",\n    \"state\": \"Updated State\",\n    \"country\": \"Updated Country\",\n    \"zipCode\": \"54321\"\n  },\n  \"status\": \"PROCESSING\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/{{orderId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order-Items",
+			"item": [
+				{
+					"name": "Create Order Item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"orderItemId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"candleId\": \"{{candleId}}\",\n  \"giftId\": \"{{giftId}}\",\n  \"unitPrice\": 30,\n  \"totalPrice\": 50,\n  \"quantity\": 2,\n  \"price\": 50\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/order-items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order-items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Order Items",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/order-items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order-items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order Item By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/order-items/{{orderItemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order-items",
+								"{{orderItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order Item (PUT)",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"candleId\": \"{{candleId}}\",\n  \"quantity\": 3,\n  \"price\": 55\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/order-items/{{orderItemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order-items",
+								"{{orderItemId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reviews",
+			"item": [
+				{
+					"name": "Create Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Save review ID in variable\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"reviewId\", responseData.id);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Great product!\",\n  \"rating\": 5,\n  \"orderId\": \"{{orderId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Reviews",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Review By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/reviews/{{reviewId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Updated review content!\",\n  \"rating\": 4\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/reviews/{{reviewId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "Delete Review",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/reviews/{{reviewId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Order Item",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/order-items/{{orderItemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order-items",
+								"{{orderItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Order",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/orders/{{orderId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Cart Item",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cart-items/{{cartItemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart-items",
+								"{{cartItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Cart",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cart/{{cartId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"{{cartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Candle",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/candles/{{candleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"candles",
+								"{{candleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Gift",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/gifts/{{giftId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gifts",
+								"{{giftId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Aroma",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/aromas/{{aromaId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aromas",
+								"{{aromaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Container",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/containers/{{containerId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"containers",
+								"{{containerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Intended Impact",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/intended-impacts/{{intendedImpactId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"intended-impacts",
+								"{{intendedImpactId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Main Option",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/main-options/{{mainOptionId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"main-options",
+								"{{mainOptionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Place",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/places/{{placeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"places",
+								"{{placeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/users/{{userId}}/remove",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"users",
+								"{{userId}}",
+								"remove"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "aromalife-backend-production.up.railway.app"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "cartId",
+			"value": ""
+		},
+		{
+			"key": "candleId",
+			"value": ""
+		},
+		{
+			"key": "aromaId",
+			"value": ""
+		},
+		{
+			"key": "containerId",
+			"value": ""
+		},
+		{
+			"key": "giftId",
+			"value": ""
+		},
+		{
+			"key": "intendedImpactId",
+			"value": ""
+		},
+		{
+			"key": "mainOptionId",
+			"value": ""
+		},
+		{
+			"key": "orderId",
+			"value": ""
+		},
+		{
+			"key": "orderItemId",
+			"value": ""
+		},
+		{
+			"key": "placeId",
+			"value": ""
+		},
+		{
+			"key": "reviewId",
+			"value": ""
+		},
+		{
+			"key": "cartItemId",
+			"value": ""
+		}
+	]
+}
