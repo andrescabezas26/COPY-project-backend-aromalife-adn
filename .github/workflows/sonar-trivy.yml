@@ -39,9 +39,10 @@ jobs:
       # 5️⃣ SonarQube scan
       - name: SonarQube Scanner
         uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          sonarHostUrl: ${{ env.SONAR_HOST_URL }}
-          token: ${{ env.SONAR_TOKEN }}
           projectBaseDir: .
           args: >
             -Dsonar.projectKey=aromalife-backend
