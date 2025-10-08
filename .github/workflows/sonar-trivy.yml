@@ -10,7 +10,6 @@ on:
       - main
       - develop
 
-# Permisos necesarios para GitHub Advanced Security
 permissions:
   contents: read
   security-events: write
@@ -22,7 +21,7 @@ env:
 
 jobs:
   # ============================================
-  # Job 1: Trivy Security Scan (PRIMERO)
+  # Job 1: Trivy Security Scan
   # ============================================
   trivy-security-scan:
     name: 🔒 Trivy Security Scan
@@ -34,7 +33,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 🔍 Scan en formato tabla para ver en logs
       - name: 🔍 Run Trivy scanner (Table format)
         uses: aquasecurity/trivy-action@master
         with:
@@ -44,7 +42,14 @@ jobs:
           severity: "CRITICAL,HIGH,MEDIUM"
           exit-code: "0"
 
-      # 🔍 Scan en formato SARIF para GitHub Security
+      - name: 🐛 Debug project structure
+        run: |
+          echo "📁 Project structure:"
+          ls -la
+          echo ""
+          echo "📦 Package files:"
+          find . -name "package*.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml" | head -20
+
       - name: 🔍 Run Trivy vulnerability scanner (SARIF)
         uses: aquasecurity/trivy-action@master
         with:
@@ -54,17 +59,37 @@ jobs:
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
           exit-code: "0"
+          ignore-unfixed: false
+          vuln-type: "os,library"
 
-      # 📊 Subir resultados SARIF a GitHub Security
+      - name: 🐛 Validate SARIF file
+        if: always()
+        run: |
+          if [ -f trivy-results.sarif ]; then
+            echo "✅ SARIF file exists"
+            SIZE=$(stat -c%s trivy-results.sarif 2>/dev/null || stat -f%z trivy-results.sarif)
+            echo "📊 File size: $SIZE bytes"
+            
+            if [ $SIZE -lt 100 ]; then
+              echo "⚠️ WARNING: SARIF file is very small, might be empty"
+            fi
+            
+            echo "🔍 SARIF content preview:"
+            head -n 50 trivy-results.sarif
+          else
+            echo "❌ SARIF file not found!"
+            exit 1
+          fi
+
       - name: 📊 Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
-        continue-on-error: true
         with:
           sarif_file: "trivy-results.sarif"
-          category: "trivy-fs"
+          category: "trivy-filesystem-scan"
+          wait-for-processing: true
+          checkout_path: ${{ github.workspace }}
 
-      # 🔍 Scan en formato JSON para artifacts
       - name: 🔍 Run Trivy vulnerability scanner (JSON)
         uses: aquasecurity/trivy-action@master
         if: always()
@@ -75,7 +100,6 @@ jobs:
           output: "trivy-report.json"
           severity: "CRITICAL,HIGH,MEDIUM"
 
-      # 📤 Subir reporte JSON como artifact
       - name: 📤 Upload Trivy JSON report
         uses: actions/upload-artifact@v4
         if: always()
@@ -95,13 +119,11 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: "20"
 
       - name: 📦 Install dependencies
         run: npm install
@@ -139,48 +161,35 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          node-version: "20"
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: 🧪 Run tests with coverage
         run: npm run test:cov
         continue-on-error: true
 
-      # Opción 1: Usar SonarQube Scanner CLI
-      - name: 📥 Install Sonar Scanner
-        run: npm install -g sonarqube-scanner
-
-      - name: 📊 SonarQube Scanner
+      - name: 📊 SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          sonar-scanner \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.token=$SONAR_TOKEN \
-            -Dsonar.projectKey=aromalife-backend \
-            -Dsonar.sources=src \
-            -Dsonar.tests=test \
-            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info \
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/test/**,**/dist/**,**/coverage/**
+        with:
+          args: >
+            -Dsonar.projectKey=aromalife-backend
+            -Dsonar.sources=src
+            -Dsonar.tests=test
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/test/**,**/dist/**,**/coverage/**,**/scripts/**,**/postgres-data/**,**/pgadmin-data/**,**/terraform/**
 
-      # Opción 2: Descomentar si prefieres usar la action oficial
-      # - name: 📊 SonarQube Scan
-      #   uses: sonarsource/sonarqube-scan-action@master
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      #   with:
-      #     args: >
-      #       -Dsonar.projectKey=aromalife-backend
-      #       -Dsonar.sources=src
-      #       -Dsonar.tests=test
-      #       -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
-      #       -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+      - name: ✅ SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
 
   # ============================================
   # Job 4: Security Report Summary
@@ -222,7 +231,6 @@ jobs:
           echo "- **Artifacts:** Download detailed reports below" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Si existe el archivo trivy-report.json, mostrar resumen
           if [ -f trivy-report.json ]; then
             echo "## 🔍 Trivy Findings Summary" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
