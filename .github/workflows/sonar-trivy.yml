@@ -55,7 +55,7 @@ jobs:
           sonar-scanner \
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.token=$SONAR_TOKEN \
-            -Dsonar.projectKey=Aromalife-Back \
+            -Dsonar.projectKey=aromalife-backend \
             -Dsonar.security.report.export.path=trivy-results.sarif
 
       # 6️⃣ Trivy scan for Docker images
