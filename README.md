@@ -656,6 +656,8 @@ El pipeline se ejecuta automáticamente en los siguientes casos:
 - Gestiona alertas de seguridad
 
 ![alt text](image-5.png)
+<img width="1919" height="929" alt="image" src="https://github.com/user-attachments/assets/ea878d21-404a-42af-a3dc-a9cc2c01ac4b" />
+
 
 #### 3. **SonarQube Dashboard**
 - Accede a: `http://<IP_PUBLICA>:9000`
