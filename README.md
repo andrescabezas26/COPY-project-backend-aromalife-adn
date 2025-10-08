@@ -395,6 +395,9 @@ terraform plan
 terraform apply
 ```
 
+<img width="1187" height="737" alt="image" src="https://github.com/user-attachments/assets/334f1621-bec7-4f18-8b73-67abdf626290" />
+
+
 #### 5. Obtener la IP pública
 
 ```bash
