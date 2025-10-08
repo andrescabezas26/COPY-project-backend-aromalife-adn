@@ -56,8 +56,7 @@ jobs:
           sonar-scanner \
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.token=$SONAR_TOKEN \
-            -Dsonar.projectKey=aromalife-backend \
-            -Dsonar.security.report.export.path=trivy-results.sarif
+            -Dsonar.projectKey=aromalife-backend
 
       # ✅ Trivy scan using official Action
       - name: 📥 Checkout code
@@ -72,7 +71,7 @@ jobs:
           scan-ref: "."
           format: "sarif"
           output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH"
+          severity: "CRITICAL,HIGH,MEDIUM"
           exit-code: "0" # No fallar el build por vulnerabilidades
 
       - name: 📊 Upload Trivy results to GitHub Security
