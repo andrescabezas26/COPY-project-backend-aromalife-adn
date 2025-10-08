@@ -7,13 +7,17 @@ on:
       - develop
   pull_request:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   sonar-trivy:
     name: SonarQube + Trivy Scan
     runs-on: ubuntu-latest
 
     env:
-      SONAR_HOST_URL: http://172.191.80.192:9000
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
@@ -36,37 +40,39 @@ jobs:
         run: npm run test:cov
         continue-on-error: true
 
-      # 4.5️⃣ Install Sonar Scanner
-      # 4.5️⃣ Install Sonar Scanner via npm
+      # 5️⃣ Install Sonar Scanner via npm
       - name: Install Sonar Scanner
         run: npm install -g sonarqube-scanner
 
-
-      # 5️⃣ Check Sonar Scanner version
-      - name: Check Sonar Scanner version
-        run: sonar-scanner --version
-
-      # 5️⃣ SonarQube scan
+      # 6️⃣ SonarQube scan
       - name: SonarQube Scanner
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner \
+          sonarqube-scanner \
             -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.projectKey=aromalife-backend \
-            -Dsonar.security.report.export.path=trivy-results.sarif
+            -Dsonar.sources=src \
+            -Dsonar.tests=test \
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
 
-      # 6️⃣ Trivy scan for Docker images
-      - name: Install Trivy
-        run: |
-          sudo apt update
-          sudo apt install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.44.0_Linux-64bit.deb
-          sudo dpkg -i trivy_0.44.0_Linux-64bit.deb
+      # 7️⃣ Trivy scan (usando Action oficial y SARIF)
+      - name: Trivy scan filesystem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: '.'
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
 
-      - name: Trivy scan container
-        run: |
-          docker build -t aromalife-backend:latest .
-          trivy image --exit-code 1 --severity HIGH,CRITICAL aromalife-backend:latest
+      # 8️⃣ Upload Trivy SARIF to GitHub Security tab
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy'
