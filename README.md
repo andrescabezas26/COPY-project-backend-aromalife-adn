@@ -1,149 +1,159 @@
-# Aromalife Backend - Personalización de Velas
+# Aromalife Backend
 
-Bienvenido al backend de **Aromalife**, una aplicación web diseñada para ofrecer una experiencia única e inmersiva en la personalización de velas. Este repositorio contiene la API y la lógica del servidor.
+API backend para la aplicación de velas aromáticas desarrollada con NestJS.
 
-## Tecnologías Utilizadas
 
-- [NestJS](https://nestjs.com) - Framework para construir aplicaciones escalables del lado del servidor.
-- [TypeORM](https://typeorm.io) - ORM para manejar la persistencia de datos.
-- [Docker](https://www.docker.com) - Contenedores para facilitar el despliegue.
+## Parte 1 Configuración de SonarQube Local
 
-## Requisitos Previos
+Esta sección explica cómo configurar SonarQube localmente para analizar el código del proyecto Aromalife Backend.
 
-- [Node.js](https://nodejs.org) (versión 16 o superior)
-- [Yarn](https://yarnpkg.com)
-- [Docker](https://www.docker.com)
+### Prerequisitos
 
-## Configuración del Proyecto
+- Docker y Docker Compose instalados
+- Node.js y npm/yarn
+- Proyecto de NestJS configurado
 
-### Instalación
+### Configuración Inicial
 
-1. Instalar dependencias:
+#### 1. Docker Compose para SonarQube
 
-   ```bash
-   yarn install
-   ```
+El proyecto incluye un archivo `docker-compose.sonar.yml` que configura SonarQube con PostgreSQL:
 
-2. Configurar variables de entorno en un archivo `.env` basado en este example.
+```yaml
+version: '3.8'
 
-   ```.env
-   # Server Configuration
-   PORT=3000
-   
-   # Database Configuration
-   DB_PASSWORD=your_database_password
-   DB_NAME=your_database_name
-   DB_USERNAME=your_database_username
-   DB_HOST=localhost
-   DB_PORT=5432
-   DATABASE_URL=postgresql://username:password@localhost:5432/database_name
-   
-   # Authentication
-   JWT_SECRET=your_jwt_secret_key
-   
-   # Cloudinary Configuration
-   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-   CLOUDINARY_API_KEY=your_cloudinary_api_key
-   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-   
-   # Gemini AI Configuration
-   GEMINI_API_KEY=your_gemini_api_key
-   GEMINI_API_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
-   
-   # Image Generation API
-   IMAGE_API_URL=your_image_api_url
-   
-   # Environment
-   NODE_ENV=development
+services:
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - sonarnet
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://db:5432/sonar
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+    depends_on:
+      - db
 
-   ```
+  db:
+    image: postgres:13
+    container_name: sonarqube-db
+    networks:
+      - sonarnet
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
 
-3. Ejecutar el servidor:
+networks:
+  sonarnet:
+    driver: bridge
 
-   ```bash
-   # Desarrollo
-   yarn start:dev
-
-   ```
-
-### Docker
-
-1. Construir y ejecutar el contenedor:
-
-   ```bash
-   docker-compose up --build
-   ```
-
-2. Alimentar la base de datos:
-   - psql -h localhost -U postgres -d postgres -f scripts/all-data.sql
-   - Contraseña del .env
-
-3. Acceder al API:
-   - [http://localhost:3001](http://localhost:3001)
-
-## Funcionalidades Clave del Backend
-
-- Gestión de usuarios y autenticación
-- Procesamiento de tests
-- Recomendaciones de aromas basadas en reglas
-- Gestión de cada entidad
-- Integración con sistemas de pago (Pendiente)
-- Base de datos (postgres)
-
-### Informe
-
-- Se entrega un archivo donde se muestra cómo probar cada una de las Api-Rest presentes en el proyecto en caso de querer probar alguna de forma manual
-- Nombre del archivo "Informe.md"
-
-## Swagger
-
-Swagger es una herramienta que permite documentar y probar APIs de manera interactiva.
-Este archivo contiene la configuración y las rutas necesarias para exponer la documentación
-de la API utilizando Swagger. Para visualizar la documentación en un navegador, asegúrate
-de que el servidor esté en ejecución y accede a la URL correspondiente:
-
-```url
-http://localhost:3001/api
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:
+  postgresql:
+  postgresql_data:
 ```
 
-Aquí podrás explorar los endpoints disponibles, sus parámetros, respuestas y probarlos directamente.
+#### 2. Archivo de Configuración
 
-## Pruebas
+El proyecto incluye un archivo `sonar-project.properties` con la configuración específica:
 
-Ejecutar pruebas unitarias
+```properties
+# Información del proyecto
+sonar.projectKey=aromalife-backend
+sonar.projectName=Aromalife Backend
+sonar.projectVersion=1.0
+
+# Configuración de archivos fuente
+sonar.sources=src
+sonar.tests=test
+sonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.ts,**/*.e2e-spec.ts
+
+# Configuración de TypeScript
+sonar.typescript.lcov.reportPaths=coverage/lcov.info
+sonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+# Configuración de cobertura
+sonar.coverage.exclusions=**/*.spec.ts,**/*.e2e-spec.ts,**/main.ts,**/*.module.ts
+
+# Configuración del servidor
+sonar.host.url=http://localhost:9000
+sonar.login=squ_924321008a440a74dd4a4d46db02962e3d764eeb
+```
+
+### Pasos para Ejecutar
+
+#### 1. Iniciar SonarQube
 
 ```bash
-yarn test --coverage
+docker-compose -f docker-compose.sonar.yml up -d
 ```
 
-Ejecutar pruebas de integración(supertest):
+#### 2. Acceder a SonarQube
+
+1. Abrir el navegador en: http://localhost:9000
+2. Credenciales por defecto:
+   - Usuario: `admin`
+   - Contraseña: `admin`
+
+#### 3. Ejecutar Análisis
+
+Para analizar el código del proyecto, simplemente ejecuta:
 
 ```bash
-yarn run test:e2e
+npm run sonar
 ```
 
-Ejecutar pruebas de postman:
+Este comando:
+1. Ejecuta las pruebas con cobertura (`npm run test:cov`)
+2. Genera el reporte de cobertura en `coverage/lcov.info`
+3. Ejecuta SonarQube Scanner para analizar el código
 
-- Importar el archivo "Project API Tests.postman_collection.json" en la aplicación Postman y seleccionar Run Collection
+### Resultado
 
-- Todas las pruebas mostrarán su respectivo código de aprobación (201 o 200)
+Una vez completado el análisis, podrás ver los resultados en el dashboard de SonarQube:
 
-## Despliegue
+![alt text](image.png)
 
-### Despliegue con Railway
+El dashboard muestra:
+- **Quality Gate**: Estado general del proyecto (Passed/Failed)
+- **Security**: Vulnerabilidades de seguridad encontradas (0 issues - Rating A)
+- **Reliability**: Bugs y issues de confiabilidad (16 issues - Rating C)
+- **Maintainability**: Code smells y problemas de mantenibilidad (76 issues - Rating A)
+- **Coverage**: Porcentaje de cobertura de código (27.4% en 2.3k líneas)
+- **Duplications**: Código duplicado (6.1% en 9.5k líneas)
 
-1. Url del dominio:
+### Configuración del Proyecto
 
-   ```url
-   https://backend-aromalife-production.up.railway.app
-   ```
+El archivo `package.json` incluye los scripts necesarios:
 
-## Documentación
+```json
+{
+  "scripts": {
+    "sonar": "npm run test:cov && sonar-scanner -Dsonar.token=squ_924321008a440a74dd4a4d46db02962e3d764eeb",
+    "sonar:coverage": "npm run test:cov && sonar-scanner"
+  }
+}
+```
 
-- [NestJS Documentation](https://docs.nestjs.com)
-- [TypeORM Documentation](https://typeorm.io)
-- [Docker Documentation](https://docs.docker.com)
+### Notas Importantes
 
----
-
-¡Gracias por elegir Aromalife!
+- El token de acceso está configurado en el archivo `sonar-project.properties`
+- La base de datos embebida es solo para propósitos de evaluación
+- Los archivos de prueba están excluidos del análisis de cobertura
+- El análisis incluye solo archivos TypeScript del directorio `src`
+- El proyecto actualmente tiene un Quality Gate **Passed** con algunas advertencias

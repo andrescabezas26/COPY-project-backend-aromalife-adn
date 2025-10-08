@@ -1,0 +1,63 @@
+name: CI/CD - SonarQube + Trivy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  sonar-trivy:
+    name: SonarQube + Trivy Scan
+    runs-on: ubuntu-latest
+
+    env:
+      SONAR_HOST_URL: http://172.191.80.192:9000
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4️⃣ Run tests with coverage
+      - name: Run tests with coverage
+        run: npm run test:cov
+
+      # 5️⃣ SonarQube scan
+      - name: SonarQube Scanner
+        uses: sonarsource/sonarcloud-github-action@v2
+        with:
+          sonarHostUrl: ${{ env.SONAR_HOST_URL }}
+          token: ${{ env.SONAR_TOKEN }}
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=aromalife-backend
+            -Dsonar.sources=src
+            -Dsonar.tests=test
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
+
+      # 6️⃣ Trivy scan for Docker images
+      - name: Install Trivy
+        run: |
+          sudo apt update
+          sudo apt install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.44.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.44.0_Linux-64bit.deb
+
+      - name: Trivy scan container
+        run: |
+          docker build -t aromalife-backend:latest .
+          trivy image --exit-code 1 --severity HIGH,CRITICAL aromalife-backend:latest
