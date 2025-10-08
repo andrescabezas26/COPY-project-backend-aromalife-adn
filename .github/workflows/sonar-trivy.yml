@@ -38,18 +38,15 @@ jobs:
 
       # 5️⃣ SonarQube scan
       - name: SonarQube Scanner
-        uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=aromalife-backend
-            -Dsonar.sources=src
-            -Dsonar.tests=test
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
+        run: |
+          sonar-scanner \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.projectKey=Aromalife-Back \
+            -Dsonar.security.report.export.path=trivy-results.sarif
 
       # 6️⃣ Trivy scan for Docker images
       - name: Install Trivy
