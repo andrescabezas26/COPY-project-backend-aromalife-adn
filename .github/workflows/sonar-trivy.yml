@@ -60,13 +60,6 @@ jobs:
             -Dsonar.security.report.export.path=trivy-results.sarif
 
       # ✅ Trivy scan using official Action
-  jobs:
-  # Job 1: Análisis de seguridad con Trivy
-  trivy-security-scan:
-    name: 🔒 Trivy Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
