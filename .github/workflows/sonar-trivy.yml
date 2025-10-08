@@ -8,8 +8,9 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: read 
   security-events: write
+  actions: read 
 
 jobs:
   sonar-trivy:
@@ -59,19 +60,48 @@ jobs:
             -Dsonar.security.report.export.path=trivy-results.sarif
 
       # ✅ Trivy scan using official Action
-      - name: Trivy scan filesystem
+  jobs:
+  # Job 1: Análisis de seguridad con Trivy
+  trivy-security-scan:
+    name: 🔒 Trivy Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Run Trivy vulnerability scanner (Filesystem)
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: fs
-          scan-ref: '.'
-          format: sarif
-          output: trivy-results.sarif
-          severity: CRITICAL,HIGH
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "0" # No fallar el build por vulnerabilidades
 
-      # ✅ Upload Trivy SARIF to GitHub Security tab
-      - name: Upload Trivy scan results
+      - name: 📊 Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true # No fallar si GitHub Advanced Security no está habilitado
         with:
-          sarif_file: 'trivy-results.sarif'
-          category: 'trivy'
+          sarif_file: "trivy-results.sarif"
+
+      - name: 🔍 Run Trivy vulnerability scanner (JSON report)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "json"
+          output: "trivy-report.json"
+          severity: "CRITICAL,HIGH,MEDIUM"
+
+      - name: 📤 Upload Trivy JSON report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-security-report
+          path: trivy-report.json
+          retention-days: 30
