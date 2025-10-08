@@ -37,13 +37,10 @@ jobs:
         continue-on-error: true
 
       # 4.5️⃣ Install Sonar Scanner
+      # 4.5️⃣ Install Sonar Scanner via npm
       - name: Install Sonar Scanner
-        run: |
-          sudo wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.731-linux.zip
-          sudo apt install -y unzip
-          sudo unzip sonar-scanner-cli-4.9.3.731-linux.zip -d /opt/
-          sudo mv /opt/sonar-scanner-4.9.3.731-linux /opt/sonar-scanner
-          sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+        run: npm install -g sonarqube-scanner
+
 
       # 5️⃣ Check Sonar Scanner version
       - name: Check Sonar Scanner version
