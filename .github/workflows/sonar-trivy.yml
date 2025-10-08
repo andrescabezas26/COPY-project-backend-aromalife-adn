@@ -6,49 +6,52 @@ on:
       - main
       - develop
   pull_request:
+    branches:
+      - main
+      - develop
 
 permissions:
   contents: read 
   security-events: write
-  actions: read 
+  actions: read
+  pull-requests: read  # Añadido para PRs
 
 jobs:
   sonar-trivy:
     name: SonarQube + Trivy Scan
     runs-on: ubuntu-latest
-
+    
     env:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
+      # ✅ UN SOLO CHECKOUT al inicio
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para SonarQube
+      
+      - name: 🔧 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
-      - name: Install dependencies
+      
+      - name: 📦 Install dependencies
         run: npm install
-
-      - name: Run tests with coverage
+      
+      - name: 🧪 Run tests with coverage
         run: npm run test:cov
         continue-on-error: true
-
-       # 4.5️⃣ Install Sonar Scanner
-      # 4.5️⃣ Install Sonar Scanner via npm
-      - name: Install Sonar Scanner
+      
+      # 🔍 SONARQUBE
+      - name: 📥 Install Sonar Scanner
         run: npm install -g sonarqube-scanner
-
-
-      # 5️⃣ Check Sonar Scanner version
-      - name: Check Sonar Scanner version
+      
+      - name: ℹ️ Check Sonar Scanner version
         run: sonar-scanner --version
-
-      # 5️⃣ SonarQube scan
-      - name: SonarQube Scanner
+      
+      - name: 🔍 SonarQube Scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -57,39 +60,36 @@ jobs:
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.projectKey=aromalife-backend
-
-      # ✅ Trivy scan using official Action
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 🔍 Run Trivy vulnerability scanner (Filesystem)
-        uses: aquasecurity/trivy-action@master
+      
+      # 🛡️ TRIVY SCAN - SARIF para GitHub Security
+      - name: 🔍 Run Trivy vulnerability scanner (SARIF)
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: "fs"
           scan-ref: "."
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "0" # No fallar el build por vulnerabilidades
-
-      - name: 📊 Upload Trivy results to GitHub Security
+          exit-code: "0"
+      
+      - name: 📊 Upload Trivy SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
-        continue-on-error: true # No fallar si GitHub Advanced Security no está habilitado
         with:
           sarif_file: "trivy-results.sarif"
-
-      - name: 🔍 Run Trivy vulnerability scanner (JSON report)
-        uses: aquasecurity/trivy-action@master
+          category: "trivy-fs"  # Identificador único
+      
+      # 📄 TRIVY SCAN - JSON para artifact
+      - name: 🔍 Run Trivy vulnerability scanner (JSON)
+        uses: aquasecurity/trivy-action@0.28.0
+        if: always()
         with:
           scan-type: "fs"
           scan-ref: "."
           format: "json"
           output: "trivy-report.json"
           severity: "CRITICAL,HIGH,MEDIUM"
-
+      
       - name: 📤 Upload Trivy JSON report
         uses: actions/upload-artifact@v4
         if: always()
