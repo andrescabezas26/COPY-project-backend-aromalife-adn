@@ -21,30 +21,30 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
-      # 1️⃣ Checkout repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # 4️⃣ Run tests with coverage
       - name: Run tests with coverage
         run: npm run test:cov
         continue-on-error: true
 
-      # 5️⃣ Install Sonar Scanner via npm
+      # ✅ Install Sonar Scanner
       - name: Install Sonar Scanner
         run: npm install -g sonarqube-scanner
 
-      # 6️⃣ SonarQube scan
+      # ✅ Fix PATH for global npm binaries
+      - name: Add npm global binaries to PATH
+        run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
+
+      # ✅ SonarQube scan
       - name: SonarQube Scanner
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -59,7 +59,7 @@ jobs:
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
             -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
 
-      # 7️⃣ Trivy scan (usando Action oficial y SARIF)
+      # ✅ Trivy scan using official Action
       - name: Trivy scan filesystem
         uses: aquasecurity/trivy-action@master
         with:
@@ -69,7 +69,7 @@ jobs:
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
 
-      # 8️⃣ Upload Trivy SARIF to GitHub Security tab
+      # ✅ Upload Trivy SARIF to GitHub Security tab
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
