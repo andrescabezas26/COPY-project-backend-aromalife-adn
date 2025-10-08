@@ -36,28 +36,27 @@ jobs:
         run: npm run test:cov
         continue-on-error: true
 
-      # ✅ Install Sonar Scanner
+       # 4.5️⃣ Install Sonar Scanner
+      # 4.5️⃣ Install Sonar Scanner via npm
       - name: Install Sonar Scanner
         run: npm install -g sonarqube-scanner
 
-      # ✅ Fix PATH for global npm binaries
-      - name: Add npm global binaries to PATH
-        run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
 
-      # ✅ SonarQube scan
+      # 5️⃣ Check Sonar Scanner version
+      - name: Check Sonar Scanner version
+        run: sonar-scanner --version
+
+      # 5️⃣ SonarQube scan
       - name: SonarQube Scanner
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          sonarqube-scanner \
+          sonar-scanner \
             -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.projectKey=aromalife-backend \
-            -Dsonar.sources=src \
-            -Dsonar.tests=test \
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.security.report.export.path=trivy-results.sarif
 
       # ✅ Trivy scan using official Action
       - name: Trivy scan filesystem
